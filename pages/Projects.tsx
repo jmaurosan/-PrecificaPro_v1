@@ -3,12 +3,12 @@ import React, { useState, useMemo } from 'react';
 import { 
   Plus, Hammer, Search, DollarSign, RotateCcw, ArrowLeft, Calendar, 
   Users, ArrowDownCircle, ArrowUpCircle, ChevronRight, FileText, 
-  Layout, Briefcase
+  Layout, Briefcase, X, CheckCircle2, Target
 } from 'lucide-react';
 import { Project, ProjectExpense } from '../types';
 
 const Projects: React.FC = () => {
-  const [projects] = useState<Project[]>([
+  const [projects, setProjects] = useState<Project[]>([
     { 
       id: 'p1', 
       name: 'Apartamento Granja Viana', 
@@ -23,10 +23,43 @@ const Projects: React.FC = () => {
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState<'finance' | 'scope'>('finance');
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+  
+  // Estado para o formulário de novo projeto
+  const [formData, setFormData] = useState({
+    name: '',
+    clientName: '',
+    totalBudget: '',
+    startDate: new Date().toISOString().split('T')[0]
+  });
 
   const budgetUsagePercent = selectedProject 
     ? (selectedProject.spentAmount / selectedProject.totalBudget) * 100 
     : 0;
+
+  const handleCreateProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const newProject: Project = {
+      id: `p${Date.now()}`,
+      name: formData.name,
+      clientId: `c${Date.now()}`, // Simulado
+      clientName: formData.clientName,
+      totalBudget: parseFloat(formData.totalBudget) || 0,
+      spentAmount: 0,
+      startDate: formData.startDate,
+      status: 'active'
+    };
+
+    setProjects([newProject, ...projects]);
+    setShowNewProjectModal(false);
+    setFormData({
+      name: '',
+      clientName: '',
+      totalBudget: '',
+      startDate: new Date().toISOString().split('T')[0]
+    });
+  };
 
   if (selectedProject) {
     return (
@@ -58,7 +91,7 @@ const Projects: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
            <div className="absolute top-0 right-0 p-8">
-              <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">Obra Ativa</span>
+              <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest">Obra Ativa</span>
            </div>
            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{selectedProject.name}</h1>
            <div className="flex items-center gap-4 text-gray-500 mb-8">
@@ -79,7 +112,7 @@ const Projects: React.FC = () => {
                  <div className="h-4 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                     <div 
                        className="h-full bg-emerald-500 transition-all duration-500 rounded-full"
-                       style={{ width: `${budgetUsagePercent}%` }}
+                       style={{ width: `${Math.min(budgetUsagePercent, 100)}%` }}
                     />
                  </div>
               </div>
@@ -155,7 +188,10 @@ const Projects: React.FC = () => {
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Obras e Projetos</h1>
           <p className="text-gray-500 dark:text-gray-400 text-lg">Gestão centralizada de execução e custos.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+        <button 
+          onClick={() => setShowNewProjectModal(true)}
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+        >
           <Plus size={20} />
           <span>Iniciar Novo Projeto</span>
         </button>
@@ -213,6 +249,118 @@ const Projects: React.FC = () => {
           )
         })}
       </div>
+
+      {/* Modal de Novo Projeto */}
+      {showNewProjectModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-gray-950 rounded-[40px] w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800 my-8">
+            <div className="p-8 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600">
+                  <Target size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-white">Iniciar Nova Obra</h2>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Defina os parâmetros de execução</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowNewProjectModal(false)}
+                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-colors"
+              >
+                <X size={24} className="text-gray-400" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateProject} className="p-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Hammer size={12} /> Nome do Projeto / Obra
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="Ex: Reforma Cozinha Ed. Solar"
+                    className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Users size={12} /> Cliente Responsável
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={formData.clientName}
+                    onChange={(e) => setFormData({...formData, clientName: e.target.value})}
+                    placeholder="Nome do proprietário"
+                    className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <DollarSign size={12} /> Orçamento Total Planejado
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 font-bold">R$</span>
+                    <input 
+                      type="number" 
+                      required
+                      value={formData.totalBudget}
+                      onChange={(e) => setFormData({...formData, totalBudget: e.target.value})}
+                      placeholder="0.00"
+                      className="w-full pl-12 pr-5 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-emerald-500 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Calendar size={12} /> Data Prevista de Início
+                  </label>
+                  <input 
+                    type="date" 
+                    required
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                    className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-emerald-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl border border-emerald-100 dark:border-emerald-800 flex items-center gap-4">
+                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-800 rounded-xl flex items-center justify-center text-emerald-600">
+                  <CheckCircle2 size={20} />
+                </div>
+                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Ao iniciar este projeto, você poderá acompanhar cada despesa lançada no módulo financeiro e monitorar o consumo do orçamento em tempo real.
+                </p>
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t border-gray-50 dark:border-gray-800">
+                <button 
+                  type="button" 
+                  onClick={() => setShowNewProjectModal(false)}
+                  className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                >
+                  Desistir
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus size={20} /> Iniciar Execução
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
