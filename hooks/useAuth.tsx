@@ -45,24 +45,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Simulating API delay
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    if (email && password) {
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        role: 'admin',
-        company: 'Minha Empresa',
-        createdAt: new Date()
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('precificaPro_user', JSON.stringify(mockUser));
-      setIsLoading(false);
-      return true;
-    }
+    // Removida a obrigatoriedade de email/senha para teste conforme solicitado
+    const mockUser: User = {
+      id: '1',
+      email: email || 'demo@precificapro.com',
+      name: email ? email.split('@')[0] : 'Usuário Demo',
+      role: 'admin',
+      company: 'Minha Empresa',
+      createdAt: new Date()
+    };
     
+    setUser(mockUser);
+    localStorage.setItem('precificaPro_user', JSON.stringify(mockUser));
     setIsLoading(false);
-    return false;
+    return true;
   };
 
   const logout = () => {

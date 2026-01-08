@@ -1,8 +1,20 @@
 
+export * from './projetoOrcamentoEtapas';
+
 export type TipoPessoa = 'PF' | 'PJ';
 export type TipoImovel = 'apartamento' | 'casa' | 'comercial' | 'terreno';
 export type SituacaoPosse = 'proprietario' | 'locatario';
 export type StatusLead = 'novo' | 'em_briefing' | 'proposta_enviada' | 'contratado' | 'perdido';
+
+export interface CompanyProfile {
+  name: string;
+  cnpj: string;
+  email: string;
+  phone: string;
+  website: string;
+  logo: string | null;
+  address: Endereco;
+}
 
 export interface User {
   id: string;
@@ -11,6 +23,7 @@ export interface User {
   role: string;
   company: string;
   createdAt: Date;
+  companyProfile?: CompanyProfile;
 }
 
 export interface Endereco {
@@ -64,11 +77,13 @@ export interface Client {
   cpfCnpj: string;
   email: string;
   telefones: { celular: string; whatsapp: string; };
+  enderecoCorrespondencia?: Endereco;
   imovel: {
     tipo: TipoImovel;
     endereco: Endereco;
     metragemM2: number;
     situacaoPosse: SituacaoPosse;
+    condominio?: { nome: string };
   };
   status: StatusLead;
   createdAt: Date;

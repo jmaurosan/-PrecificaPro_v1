@@ -70,18 +70,11 @@ const Dashboard: React.FC = () => {
     const filteredProposals = MOCK_DATA.proposals.filter(p => isWithinPeriod(p.date, filterPeriod));
     const filteredClients = MOCK_DATA.clients.filter(c => isWithinPeriod(c.createdAt, filterPeriod));
 
-    // 1. Propostas Enviadas (Sent + Approved)
     const sentProposals = filteredProposals.filter(p => p.status === 'sent' || p.status === 'approved').length;
-
-    // 2. Receita Estimada (Soma de Approved + Sent como potencial)
     const revenue = filteredProposals
       .filter(p => p.status === 'approved' || p.status === 'sent')
       .reduce((acc, curr) => acc + curr.price, 0);
-
-    // 3. Clientes Ativos (Contratado + Briefing)
     const activeClients = filteredClients.filter(c => c.status === 'contratado' || c.status === 'em_briefing').length;
-
-    // 4. Serviços Ativos (Baseado em propostas aprovadas)
     const activeServices = filteredProposals.filter(p => p.status === 'approved').length;
 
     return [
@@ -138,7 +131,6 @@ const Dashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Cards de Estatísticas Funcionais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
@@ -199,13 +191,6 @@ const Dashboard: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-                {recentProposals.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="px-8 py-20 text-center text-gray-400 font-bold uppercase text-xs tracking-widest">
-                      Nenhuma proposta no período
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
@@ -254,10 +239,9 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Filtrar Período */}
       {showFilterModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-950 rounded-[40px] w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800 overflow-hidden">
+          <div className="bg-white dark:bg-gray-950 rounded-[40px] w-full max-md shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800 overflow-hidden">
             <div className="p-8 pb-0 flex items-center justify-between">
               <h2 className="text-2xl font-black text-gray-900 dark:text-white">Filtrar Período</h2>
               <button onClick={() => setShowFilterModal(false)} className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-colors">
@@ -276,10 +260,7 @@ const Dashboard: React.FC = () => {
                     : 'border-gray-50 dark:border-gray-900 hover:border-gray-200 text-gray-500'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <Calendar size={20} className={filterPeriod === key ? 'text-emerald-500' : 'text-gray-300'} />
-                    {periodLabels[key]}
-                  </div>
+                  <div className="flex items-center gap-4">{periodLabels[key]}</div>
                   {filterPeriod === key && <Check size={20} className="text-emerald-500" />}
                 </button>
               ))}

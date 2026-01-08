@@ -13,11 +13,7 @@ const Auth: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    if (!email || !password) {
-      setError('Por favor, preencha email e senha');
-      return;
-    }
-    
+    // Removida a validação obrigatória para facilitar o acesso em desenvolvimento
     const success = await login(email, password);
     if (!success) {
       setError('Falha no login. Verifique suas credenciais.');
@@ -73,11 +69,10 @@ const Auth: React.FC = () => {
               </label>
               <input
                 type="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-500 text-gray-900 dark:text-white transition-all"
-                placeholder="seu@email.com"
+                placeholder="seu@email.com (opcional para teste)"
               />
             </div>
 
@@ -90,11 +85,10 @@ const Auth: React.FC = () => {
               </div>
               <input
                 type="password"
-                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:focus:border-emerald-500 text-gray-900 dark:text-white transition-all"
-                placeholder="••••••••"
+                placeholder="•••••••• (opcional para teste)"
               />
             </div>
 
@@ -122,7 +116,7 @@ const Auth: React.FC = () => {
             </div>
 
             <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-              Digite qualquer email e senha para acessar o painel demonstrativo.
+              Clique em entrar para acessar o painel sem necessidade de credenciais.
             </p>
           </form>
         </div>

@@ -8,7 +8,7 @@ import {
   Calculator, 
   Briefcase, 
   FileText, 
-  Users, 
+  UserPlus, 
   Settings,
   LogOut,
   Sun,
@@ -17,7 +17,6 @@ import {
   X,
   Monitor,
   Hammer,
-  HardHat,
   Wallet
 } from 'lucide-react';
 
@@ -25,7 +24,6 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// Fix: Destructure children from props and use LayoutProps interface to avoid 'children' is not defined error
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const { theme, setTheme, effectiveTheme } = useTheme();
@@ -36,12 +34,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const menuItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/projects', label: 'Obras e Projetos', icon: Hammer },
-    { path: '/providers', label: 'Prestadores', icon: HardHat },
     { path: '/financial', label: 'Financeiro', icon: Wallet },
     { path: '/calculator', label: 'Calculadora', icon: Calculator },
     { path: '/services', label: 'Serviços', icon: Briefcase },
     { path: '/proposals', label: 'Propostas', icon: FileText },
-    { path: '/clients', label: 'Clientes', icon: Users },
+    { path: '/registrations', label: 'Cadastros', icon: UserPlus },
     { path: '/settings', label: 'Configurações', icon: Settings },
   ];
 
@@ -94,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname === item.path || (item.path === '/registrations' && location.pathname.startsWith('/registrations'));
               
               return (
                 <button
@@ -104,7 +101,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     w-full flex items-center gap-3 px-4 py-3 rounded-xl
                     transition-all duration-200 group
                     ${isActive 
-                      ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-extrabold shadow-sm shadow-emerald-100 dark:shadow-none' 
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-extrabold shadow-sm' 
                       : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200 font-bold'
                     }
                   `}

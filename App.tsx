@@ -9,10 +9,10 @@ import Dashboard from './pages/Dashboard';
 import CalculatorPage from './pages/Calculator';
 import ServicesPage from './pages/Services';
 import ProposalsPage from './pages/Proposals';
-import ClientsPage from './pages/Clients';
+import Registrations from './pages/Registrations';
 import SettingsPage from './pages/Settings';
 import Projects from './pages/Projects';
-import Providers from './pages/Providers';
+import ProjectFinances from './pages/ProjectFinances';
 import Financial from './pages/Financial';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -50,12 +50,12 @@ const AppRoutes: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/projects" element={<Projects />} />
-                <Route path="/providers" element={<Providers />} />
+                <Route path="/projects/:id/finances" element={<ProjectFinances />} />
                 <Route path="/financial" element={<Financial />} />
                 <Route path="/calculator" element={<CalculatorPage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/proposals" element={<ProposalsPage />} />
-                <Route path="/clients" element={<ClientsPage />} />
+                <Route path="/registrations" element={<Registrations />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

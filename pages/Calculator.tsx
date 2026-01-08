@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-// Added Calculator to the imports
+import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Info, Save, RotateCcw, ChevronRight, Calculator } from 'lucide-react';
 
 interface CalculatorItem {
@@ -11,6 +12,7 @@ interface CalculatorItem {
 }
 
 const CalculatorPage: React.FC = () => {
+  const navigate = useNavigate();
   const [items, setItems] = useState<CalculatorItem[]>([
     { id: '1', description: 'Horas de trabalho especializadas', quantity: 10, unitCost: 150, profitMargin: 40 },
     { id: '2', description: 'Infraestrutura e Ferramentas', quantity: 1, unitCost: 500, profitMargin: 20 },
@@ -36,18 +38,36 @@ const CalculatorPage: React.FC = () => {
     );
   };
 
-  const calculateTotal = () => {
-    return items.reduce((sum, item) => {
-      const cost = item.quantity * item.unitCost;
-      const markup = cost * (item.profitMargin / 100);
-      return sum + cost + markup;
-    }, 0);
-  };
-
   const calculateItemTotal = (item: CalculatorItem) => {
     const cost = item.quantity * item.unitCost;
     const markup = cost * (item.profitMargin / 100);
     return cost + markup;
+  };
+
+  const calculateTotal = () => {
+    return items.reduce((sum, item) => sum + calculateItemTotal(item), 0);
+  };
+
+  const handleGenerateProposal = () => {
+    // Mapeia itens da calculadora para o formato de itens da proposta
+    const proposalItems = items.map(item => ({
+      id: `ITEM-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      description: item.description || 'Item sem descrição',
+      unit: 'un',
+      quantity: item.quantity,
+      // Preço Unitário na Proposta = Custo + Margem
+      unitPrice: item.unitCost * (1 + item.profitMargin / 100)
+    }));
+
+    const pendingData = {
+      items: proposalItems,
+      total: calculateTotal(),
+      notes: 'Gerado automaticamente a partir da Calculadora de Preços.'
+    };
+
+    // Salva temporariamente e navega
+    localStorage.setItem('precificaPro_pending_proposal', JSON.stringify(pendingData));
+    navigate('/proposals');
   };
 
   return (
@@ -203,13 +223,16 @@ const CalculatorPage: React.FC = () => {
                   <Calculator size={32} />
                </div>
                <div>
-                  <p className="text-emerald-100 font-bold uppercase tracking-widest text-xs">Preço de Venda Sugerido</p>
-                  <h3 className="text-4xl font-extrabold tracking-tight">
+                  <p className="text-emerald-50 font-black uppercase tracking-widest text-[10px]">Preço de Venda Sugerido</p>
+                  <h3 className="text-4xl font-black tracking-tight">
                     R$ {calculateTotal().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </h3>
                </div>
             </div>
-            <button className="w-full sm:w-auto px-8 py-4 bg-white text-emerald-700 rounded-2xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+            <button 
+              onClick={handleGenerateProposal}
+              className="w-full sm:w-auto px-8 py-4 bg-white text-emerald-700 rounded-2xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+            >
               Gerar Proposta Comercial <ChevronRight size={20} />
             </button>
           </div>
