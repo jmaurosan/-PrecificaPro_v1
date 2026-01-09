@@ -5,7 +5,8 @@ import {
   Plus, Hammer, Search, DollarSign, RotateCcw, ArrowLeft, Calendar, 
   Users, ArrowDownCircle, ArrowUpCircle, ChevronRight, FileText, 
   Layout, Briefcase, X, CheckCircle2, Target, PieChart, Info,
-  Box, Layers, Home, Droplets, Zap, ShieldCheck, Square, Palette, Brush, Cpu, Trees
+  Box, Layers, Home, Droplets, Zap, ShieldCheck, Square, Palette, Brush, Cpu, Trees,
+  User as UserIcon, Hash
 } from 'lucide-react';
 import { Project, ProjectExpense, ETAPAS_DEFAULT, ProjetoOrcamentoEtapa, NomeEtapaObra } from '../types';
 
@@ -28,6 +29,14 @@ const Projects: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'finance' | 'scope' | 'budget'>('finance');
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   
+  // Estado para o formulário de novo projeto
+  const [newProjectData, setNewProjectData] = useState({
+    name: '',
+    clientName: '',
+    totalBudget: 0,
+    startDate: new Date().toISOString().split('T')[0]
+  });
+
   const [projectStages, setProjectStages] = useState<ProjetoOrcamentoEtapa[]>([]);
 
   const handleGenerateBudget = () => {
@@ -48,6 +57,35 @@ const Projects: React.FC = () => {
     }));
 
     setProjectStages(stages);
+  };
+
+  const handleCreateProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newProjectData.name || !newProjectData.clientName || newProjectData.totalBudget <= 0) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const newProject: Project = {
+      id: `p-${Date.now()}`,
+      name: newProjectData.name,
+      clientId: 'manual', // Em um sistema real, viria do CRM
+      clientName: newProjectData.clientName,
+      totalBudget: newProjectData.totalBudget,
+      spentAmount: 0,
+      startDate: newProjectData.startDate,
+      status: 'active'
+    };
+
+    setProjects([newProject, ...projects]);
+    setShowNewProjectModal(false);
+    setNewProjectData({
+      name: '',
+      clientName: '',
+      totalBudget: 0,
+      startDate: new Date().toISOString().split('T')[0]
+    });
   };
 
   const getStageIcon = (nome: NomeEtapaObra) => {
@@ -79,7 +117,7 @@ const Projects: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <button 
             onClick={() => { setSelectedProject(null); setProjectStages([]); }}
-            className="flex items-center gap-2 text-gray-500 hover:text-emerald-600 transition-colors font-bold group"
+            className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors font-bold group"
           >
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             Voltar para Projetos
@@ -88,19 +126,19 @@ const Projects: React.FC = () => {
           <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl">
             <button 
               onClick={() => setActiveTab('finance')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'finance' ? 'bg-white dark:bg-gray-700 shadow-sm text-emerald-600' : 'text-gray-400'}`}
+              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'finance' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-400'}`}
             >
               <DollarSign size={14} /> Financeiro
             </button>
             <button 
               onClick={() => setActiveTab('budget')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'budget' ? 'bg-white dark:bg-gray-700 shadow-sm text-emerald-600' : 'text-gray-400'}`}
+              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'budget' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-400'}`}
             >
               <PieChart size={14} /> Orçamento
             </button>
             <button 
               onClick={() => setActiveTab('scope')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'scope' ? 'bg-white dark:bg-gray-700 shadow-sm text-emerald-600' : 'text-gray-400'}`}
+              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'scope' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-400'}`}
             >
               <Layout size={14} /> Briefing
             </button>
@@ -109,7 +147,7 @@ const Projects: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
            <div className="absolute top-0 right-0 p-8">
-              <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest">Obra Ativa</span>
+              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">Obra Ativa</span>
            </div>
            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{selectedProject.name}</h1>
            <div className="flex items-center gap-4 text-gray-500 mb-8">
@@ -129,7 +167,7 @@ const Projects: React.FC = () => {
                  </div>
                  <div className="h-4 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                     <div 
-                       className="h-full bg-emerald-500 transition-all duration-500 rounded-full"
+                       className="h-full bg-indigo-500 transition-all duration-500 rounded-full"
                        style={{ width: `${Math.min(budgetUsagePercent, 100)}%` }}
                     />
                  </div>
@@ -137,11 +175,11 @@ const Projects: React.FC = () => {
               <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl">
                  <div>
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Saldo Disponível</p>
-                    <p className="text-2xl font-black text-emerald-600">R$ {(selectedProject.totalBudget - selectedProject.spentAmount).toLocaleString('pt-BR')}</p>
+                    <p className="text-2xl font-black text-indigo-600">R$ {(selectedProject.totalBudget - selectedProject.spentAmount).toLocaleString('pt-BR')}</p>
                  </div>
                  <button 
                   onClick={() => navigate(`/projects/${selectedProject.id}/finances`)}
-                  className="px-6 py-3 bg-white dark:bg-gray-900 rounded-xl text-emerald-600 font-black uppercase text-[10px] shadow-sm hover:scale-105 transition-all flex items-center gap-2"
+                  className="px-6 py-3 bg-white dark:bg-gray-900 rounded-xl text-indigo-600 font-black uppercase text-[10px] shadow-sm hover:scale-105 transition-all flex items-center gap-2"
                  >
                    <Plus size={16} /> Lançar Despesa
                  </button>
@@ -153,7 +191,7 @@ const Projects: React.FC = () => {
           <div className="space-y-6">
             {projectStages.length === 0 ? (
               <div className="bg-white dark:bg-gray-900 rounded-[40px] p-12 border-2 border-dashed border-gray-100 dark:border-gray-800 text-center space-y-6">
-                <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-900/20 rounded-3xl flex items-center justify-center mx-auto text-emerald-600">
+                <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl flex items-center justify-center mx-auto text-indigo-600">
                   <PieChart size={40} />
                 </div>
                 <div className="max-w-md mx-auto">
@@ -161,7 +199,7 @@ const Projects: React.FC = () => {
                   <p className="text-gray-500 text-sm font-medium mb-8">Nenhum orçamento detalhado foi gerado para esta obra ainda. Deseja criar uma estimativa baseada nos padrões de mercado?</p>
                   <button 
                     onClick={handleGenerateBudget}
-                    className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                   >
                     <Zap size={20} /> Gerar Estimativa por Etapas
                   </button>
@@ -171,14 +209,14 @@ const Projects: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
                    <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                     <Layers size={20} className="text-emerald-500" /> Distribuição Financeira
+                     <Layers size={20} className="text-indigo-500" /> Distribuição Financeira
                    </h2>
                    <div className="space-y-4">
                      {projectStages.map(stage => (
-                       <div key={stage.id} className="p-5 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-transparent hover:border-emerald-100 dark:hover:border-emerald-900/40 transition-all">
+                       <div key={stage.id} className="p-5 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/40 transition-all">
                           <div className="flex items-center justify-between mb-4">
                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center text-emerald-600 shadow-sm border border-gray-50 dark:border-gray-800">
+                                <div className="w-10 h-10 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm border border-gray-50 dark:border-gray-800">
                                    {getStageIcon(stage.nomeEtapa)}
                                 </div>
                                 <div>
@@ -187,11 +225,11 @@ const Projects: React.FC = () => {
                                 </div>
                              </div>
                              <div className="text-right">
-                                <p className="text-sm font-black text-emerald-600">R$ {stage.valorPrevisto.toLocaleString('pt-BR')}</p>
+                                <p className="text-sm font-black text-indigo-600">R$ {stage.valorPrevisto.toLocaleString('pt-BR')}</p>
                              </div>
                           </div>
                           <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                             <div className="h-full bg-emerald-500" style={{ width: `${stage.percentualPrevisto}%` }} />
+                             <div className="h-full bg-indigo-500" style={{ width: `${stage.percentualPrevisto}%` }} />
                           </div>
                        </div>
                      ))}
@@ -199,7 +237,7 @@ const Projects: React.FC = () => {
                 </div>
 
                 <div className="space-y-6">
-                   <div className="bg-emerald-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-600/20">
+                   <div className="bg-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-600/20">
                       <div className="flex items-center gap-4 mb-6">
                          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
                             <Info size={24} />
@@ -208,22 +246,22 @@ const Projects: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-6">
                          <div className="space-y-1">
-                            <p className="text-[10px] font-black text-emerald-100 uppercase">Total Estimado</p>
+                            <p className="text-[10px] font-black text-indigo-100 uppercase">Total Estimado</p>
                             <p className="text-2xl font-black">R$ {selectedProject.totalBudget.toLocaleString('pt-BR')}</p>
                          </div>
                          <div className="space-y-1">
-                            <p className="text-[10px] font-black text-emerald-100 uppercase">Nº de Etapas</p>
+                            <p className="text-[10px] font-black text-indigo-100 uppercase">Nº de Etapas</p>
                             <p className="text-2xl font-black">{projectStages.length}</p>
                          </div>
                       </div>
                       <div className="mt-8 pt-6 border-t border-white/20">
-                         <p className="text-xs font-medium text-emerald-50 leading-relaxed italic">
+                         <p className="text-xs font-medium text-indigo-50 leading-relaxed italic">
                            "Estes percentuais são baseados em padrões de obras de médio/alto padrão. Você pode ajustar cada etapa manualmente no dossiê técnico."
                          </p>
                       </div>
                    </div>
 
-                   <button className="w-full py-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 shadow-sm">
+                   <button className="w-full py-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 transition-all flex items-center justify-center gap-2 shadow-sm">
                       <FileText size={20} /> Exportar Orçamento PDF
                    </button>
                 </div>
@@ -240,7 +278,7 @@ const Projects: React.FC = () => {
                    <div className="flex gap-4">
                       <button 
                         onClick={() => navigate(`/projects/${selectedProject.id}/finances`)}
-                        className="flex items-center gap-1 text-[10px] font-black uppercase text-emerald-600 hover:underline"
+                        className="flex items-center gap-1 text-[10px] font-black uppercase text-indigo-600 hover:underline"
                       >
                         Gerenciar Todos <ChevronRight size={12}/>
                       </button>
@@ -253,7 +291,7 @@ const Projects: React.FC = () => {
                    <p className="text-sm font-bold text-gray-500">Acesse o Dossiê Financeiro para lançar e visualizar despesas.</p>
                    <button 
                       onClick={() => navigate(`/projects/${selectedProject.id}/finances`)}
-                      className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase"
+                      className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase"
                    >
                      Abrir Finanças
                    </button>
@@ -266,7 +304,7 @@ const Projects: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
                 <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-                   <FileText size={16} className="text-emerald-500" /> Dossie Técnico
+                   <FileText size={16} className="text-indigo-500" /> Dossie Técnico
                 </h3>
                 <div className="space-y-4">
                    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
@@ -294,7 +332,7 @@ const Projects: React.FC = () => {
         </div>
         <button 
           onClick={() => setShowNewProjectModal(true)}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
         >
           <Plus size={20} />
           <span>Iniciar Novo Projeto</span>
@@ -308,19 +346,19 @@ const Projects: React.FC = () => {
             <div 
               key={project.id}
               onClick={() => setSelectedProject(project)}
-              className="group bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-emerald-200 transition-all cursor-pointer flex flex-col"
+              className="group bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-indigo-200 transition-all cursor-pointer flex flex-col"
             >
               <div className="flex items-start justify-between mb-6">
-                <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                   <Hammer size={28} />
                 </div>
-                <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">
                   {project.status === 'active' ? 'Em execução' : 'Concluído'}
                 </div>
               </div>
 
               <div className="mb-8">
-                <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-600 transition-colors">{project.name}</h3>
+                <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-2 group-hover:text-indigo-600 transition-colors">{project.name}</h3>
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                    <Users size={14} /> {project.clientName}
                 </p>
@@ -339,7 +377,7 @@ const Projects: React.FC = () => {
                 </div>
                 <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full transition-all duration-500 ${usage > 90 ? 'bg-rose-500' : usage > 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                    className={`h-full transition-all duration-500 ${usage > 90 ? 'bg-rose-500' : usage > 70 ? 'bg-amber-500' : 'bg-indigo-500'}`}
                     style={{ width: `${Math.min(usage, 100)}%` }}
                   />
                 </div>
@@ -347,12 +385,109 @@ const Projects: React.FC = () => {
 
               <div className="mt-6 pt-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
                  <span className="text-xs font-bold text-gray-500 uppercase">Ver Dossie Completo</span>
-                 <ChevronRight size={18} className="text-emerald-500 group-hover:translate-x-1 transition-transform" />
+                 <ChevronRight size={18} className="text-indigo-500 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           )
         })}
       </div>
+
+      {/* Modal Iniciar Novo Projeto */}
+      {showNewProjectModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-md overflow-y-auto">
+          <div className="bg-white dark:bg-gray-950 rounded-[40px] w-full max-w-xl shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800 my-8">
+            <div className="p-8 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-2xl flex items-center justify-center">
+                  <Hammer size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-white">Iniciar Novo Projeto</h2>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Abertura de Obra e Budget</p>
+                </div>
+              </div>
+              <button onClick={() => setShowNewProjectModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateProject} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                  <Hash size={12} /> Nome do Projeto / Obra
+                </label>
+                <input 
+                  required
+                  type="text" 
+                  value={newProjectData.name}
+                  onChange={(e) => setNewProjectData({...newProjectData, name: e.target.value})}
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-indigo-500 transition-all text-gray-900 dark:text-white" 
+                  placeholder="Ex: Residência Alphaville - Bloco A" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                  <UserIcon size={12} /> Cliente Vinculado
+                </label>
+                <input 
+                  required
+                  type="text" 
+                  value={newProjectData.clientName}
+                  onChange={(e) => setNewProjectData({...newProjectData, clientName: e.target.value})}
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-indigo-500 transition-all text-gray-900 dark:text-white" 
+                  placeholder="Nome do cliente para o projeto" 
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <DollarSign size={12} /> Budget Total (R$)
+                  </label>
+                  <input 
+                    required
+                    type="number" 
+                    step="0.01"
+                    value={newProjectData.totalBudget || ''}
+                    onChange={(e) => setNewProjectData({...newProjectData, totalBudget: parseFloat(e.target.value) || 0})}
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-indigo-500 transition-all text-gray-900 dark:text-white" 
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Calendar size={12} /> Previsão de Início
+                  </label>
+                  <input 
+                    required
+                    type="date" 
+                    value={newProjectData.startDate}
+                    onChange={(e) => setNewProjectData({...newProjectData, startDate: e.target.value})}
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl font-bold outline-none focus:border-indigo-500 transition-all text-gray-900 dark:text-white" 
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t border-gray-50 dark:border-gray-800">
+                <button 
+                  type="button" 
+                  onClick={() => setShowNewProjectModal(false)} 
+                  className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-200 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]"
+                >
+                  <CheckCircle2 size={18} /> Confirmar Abertura
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

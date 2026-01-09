@@ -1,7 +1,10 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Info, Save, RotateCcw, ChevronRight, Calculator } from 'lucide-react';
+import { 
+  Plus, Trash2, Info, Save, RotateCcw, ChevronRight, 
+  Calculator, Hammer, CheckCircle2, X 
+} from 'lucide-react';
 
 interface CalculatorItem {
   id: string;
@@ -13,18 +16,15 @@ interface CalculatorItem {
 
 const CalculatorPage: React.FC = () => {
   const navigate = useNavigate();
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState('Apartamento Granja Viana');
   const [items, setItems] = useState<CalculatorItem[]>([
-    { id: '1', description: 'Horas de trabalho especializadas', quantity: 10, unitCost: 150, profitMargin: 40 },
-    { id: '2', description: 'Infraestrutura e Ferramentas', quantity: 1, unitCost: 500, profitMargin: 20 },
+    { id: '1', description: 'Instalação de Pontos de Automação', quantity: 12, unitCost: 150, profitMargin: 35 },
+    { id: '2', description: 'Central de Processamento', quantity: 1, unitCost: 2500, profitMargin: 20 },
   ]);
 
-  const [showHelp, setShowHelp] = useState(false);
-
   const addItem = () => {
-    setItems([
-      ...items,
-      { id: Date.now().toString(), description: '', quantity: 1, unitCost: 0, profitMargin: 30 },
-    ]);
+    setItems([...items, { id: Date.now().toString(), description: '', quantity: 1, unitCost: 0, profitMargin: 30 }]);
   };
 
   const removeItem = (id: string) => {
@@ -33,211 +33,108 @@ const CalculatorPage: React.FC = () => {
   };
 
   const updateItem = (id: string, field: keyof CalculatorItem, value: number | string) => {
-    setItems(
-      items.map((item) => (item.id === id ? { ...item, [field]: value } : item))
-    );
-  };
-
-  const calculateItemTotal = (item: CalculatorItem) => {
-    const cost = item.quantity * item.unitCost;
-    const markup = cost * (item.profitMargin / 100);
-    return cost + markup;
+    setItems(items.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
   const calculateTotal = () => {
-    return items.reduce((sum, item) => sum + calculateItemTotal(item), 0);
+    return items.reduce((sum, item) => {
+      const cost = item.quantity * item.unitCost;
+      return sum + (cost * (1 + item.profitMargin / 100));
+    }, 0);
   };
 
-  const handleGenerateProposal = () => {
-    // Mapeia itens da calculadora para o formato de itens da proposta
-    const proposalItems = items.map(item => ({
-      id: `ITEM-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      description: item.description || 'Item sem descrição',
-      unit: 'un',
-      quantity: item.quantity,
-      // Preço Unitário na Proposta = Custo + Margem
-      unitPrice: item.unitCost * (1 + item.profitMargin / 100)
-    }));
-
-    const pendingData = {
-      items: proposalItems,
-      total: calculateTotal(),
-      notes: 'Gerado automaticamente a partir da Calculadora de Preços.'
-    };
-
-    // Salva temporariamente e navega
-    localStorage.setItem('precificaPro_pending_proposal', JSON.stringify(pendingData));
-    navigate('/proposals');
+  const handleSaveToProject = () => {
+    // Simulação de salvamento
+    alert(`Orçamento de R$ ${calculateTotal().toLocaleString('pt-BR')} vinculado à obra ${selectedProject}!`);
+    setShowSaveModal(false);
+    navigate('/projects');
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-20">
+    <div className="space-y-8 max-w-5xl mx-auto pb-20 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Calculadora de Preços</h1>
-          <p className="text-gray-500 dark:text-gray-400">Calcule o preço de venda ideal com base nos seus custos e margem desejada.</p>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Calculadora de Custos</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">Composição de preço de venda com markup dinâmico.</p>
         </div>
-        <div className="flex gap-2">
-           <button
-            onClick={() => setShowHelp(!showHelp)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              showHelp ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300'
-            }`}
-          >
-            <Info size={18} />
-            <span>Guia</span>
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20">
-            <Save size={18} />
-            <span>Salvar</span>
-          </button>
-        </div>
+        <button onClick={() => setShowSaveModal(true)} className="flex items-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+          <Save size={18} /> Salvar no Projeto
+        </button>
       </div>
 
-      {showHelp && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl p-6 animate-in slide-in-from-top duration-300">
-          <div className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-300 shrink-0">
-              <Info size={20} />
-            </div>
-            <div>
-              <h3 className="font-bold text-blue-900 dark:text-blue-300 text-lg mb-2">Como utilizar a calculadora</h3>
-              <div className="grid md:grid-cols-3 gap-6 text-sm text-blue-800 dark:text-blue-400">
-                <div>
-                  <p className="font-bold mb-1">1. Custo Unitário</p>
-                  <p>Informe o valor que você gasta para produzir uma unidade ou realizar uma hora de trabalho.</p>
-                </div>
-                <div>
-                  <p className="font-bold mb-1">2. Margem de Lucro (%)</p>
-                  <p>A porcentagem que você deseja ganhar sobre o custo informado. É o seu lucro bruto.</p>
-                </div>
-                <div>
-                  <p className="font-bold mb-1">3. Preço Final</p>
-                  <p>O sistema calcula automaticamente o preço sugerido somando o custo e o lucro (markup).</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-        <div className="p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20">
-          <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            Composição do Valor
-          </h2>
-        </div>
-
-        <div className="p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-[40px] shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="p-10 space-y-6">
           <div className="space-y-4">
-            {items.map((item, index) => (
-              <div key={item.id} className="group relative flex flex-col lg:flex-row gap-4 p-5 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800 transition-all">
-                <div className="flex-1 space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Descrição do Item</label>
-                  <input
-                    type="text"
-                    value={item.description}
-                    onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                    placeholder="Ex: Consultoria, Licenças, Impostos..."
-                    className="w-full bg-transparent font-bold text-gray-900 dark:text-white focus:outline-none placeholder:text-gray-300 dark:placeholder:text-gray-600 text-lg"
-                  />
+            {items.map((item) => (
+              <div key={item.id} className="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-3xl border border-transparent hover:border-emerald-100 transition-all grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
+                <div className="lg:col-span-5 space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Descrição do Item / Serviço</label>
+                  <input type="text" value={item.description} onChange={(e) => updateItem(item.id, 'description', e.target.value)} className="w-full bg-transparent font-bold text-gray-900 dark:text-white focus:outline-none text-lg" placeholder="Ex: Mão de Obra Elétrica..." />
                 </div>
-                
-                <div className="flex flex-wrap items-end gap-6">
-                  <div className="w-24 space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Quantidade</label>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white dark:bg-gray-900 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-center font-bold outline-none"
-                    />
-                  </div>
-
-                  <div className="w-32 space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custo Unitário</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">R$</span>
-                      <input
-                        type="number"
-                        value={item.unitCost}
-                        onChange={(e) => updateItem(item.id, 'unitCost', parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white dark:bg-gray-900 pl-9 pr-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="w-28 space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Margem (%)</label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={item.profitMargin}
-                        onChange={(e) => updateItem(item.id, 'profitMargin', parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white dark:bg-gray-900 pl-3 pr-8 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-center font-bold outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
-                    </div>
-                  </div>
-
-                  <div className="w-32 text-right space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subtotal</label>
-                    <p className="py-2.5 font-extrabold text-gray-900 dark:text-white">
-                      R$ {calculateItemTotal(item).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
-                  >
-                    <Trash2 size={20} />
-                  </button>
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Quant.</label>
+                  <input type="number" value={item.quantity} onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)} className="w-full bg-white dark:bg-gray-900 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-center" />
                 </div>
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Custo Unit.</label>
+                  <input type="number" value={item.unitCost} onChange={(e) => updateItem(item.id, 'unitCost', parseFloat(e.target.value) || 0)} className="w-full bg-white dark:bg-gray-900 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl font-bold" />
+                </div>
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Margem (%)</label>
+                  <input type="number" value={item.profitMargin} onChange={(e) => updateItem(item.id, 'profitMargin', parseFloat(e.target.value) || 0)} className="w-full bg-white dark:bg-gray-900 px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-center text-emerald-600" />
+                </div>
+                <button onClick={() => removeItem(item.id)} className="p-3 text-gray-300 hover:text-rose-500 transition-all"><Trash2 size={20}/></button>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 flex items-center gap-4">
-            <button
-              onClick={addItem}
-              className="flex-1 flex items-center justify-center gap-2 py-4 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl text-gray-500 hover:text-emerald-600 hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all font-bold group"
-            >
-              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-              <span>Adicionar Novo Item ao Cálculo</span>
-            </button>
-            <button
-              onClick={() => setItems([{ id: '1', description: '', quantity: 1, unitCost: 0, profitMargin: 30 }])}
-              className="p-4 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              title="Limpar Tudo"
-            >
-              <RotateCcw size={24} />
-            </button>
-          </div>
+          <button onClick={addItem} className="w-full py-5 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-emerald-50 hover:border-emerald-200 transition-all flex items-center justify-center gap-2">
+             <Plus size={18} /> Adicionar Novo Item à Tabela
+          </button>
         </div>
 
-        <div className="p-8 border-t border-gray-100 dark:border-gray-800 bg-emerald-600 text-white">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
-                  <Calculator size={32} />
-               </div>
-               <div>
-                  <p className="text-emerald-50 font-black uppercase tracking-widest text-[10px]">Preço de Venda Sugerido</p>
-                  <h3 className="text-4xl font-black tracking-tight">
-                    R$ {calculateTotal().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </h3>
-               </div>
-            </div>
-            <button 
-              onClick={handleGenerateProposal}
-              className="w-full sm:w-auto px-8 py-4 bg-white text-emerald-700 rounded-2xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
-            >
-              Gerar Proposta Comercial <ChevronRight size={20} />
-            </button>
-          </div>
+        <div className="p-10 bg-emerald-600 text-white flex flex-col sm:flex-row items-center justify-between gap-8">
+           <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center"><Calculator size={32}/></div>
+              <div>
+                 <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Preço de Venda Sugerido</p>
+                 <h3 className="text-4xl font-black tracking-tighter">R$ {calculateTotal().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
+              </div>
+           </div>
+           <button onClick={() => setShowSaveModal(true)} className="w-full sm:w-auto px-8 py-4 bg-white text-emerald-700 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">
+             Vincular à Obra <ChevronRight size={18} />
+           </button>
         </div>
       </div>
+
+      {/* Modal Salvar no Projeto */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+          <div className="bg-white dark:bg-gray-950 rounded-[40px] w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800">
+             <div className="p-8 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                <h2 className="text-xl font-black text-gray-900 dark:text-white">Vincular Orçamento</h2>
+                <button onClick={() => setShowSaveModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"><X size={20} /></button>
+             </div>
+             <div className="p-8 space-y-6">
+                <div className="space-y-3">
+                   <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2"><Hammer size={12}/> Selecione a Obra Destino</label>
+                   <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="w-full px-5 py-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-2xl font-black text-indigo-600 outline-none">
+                      <option>Apartamento Granja Viana</option>
+                      <option>Residência Alphaville</option>
+                      <option>Loja Shopping Center</option>
+                   </select>
+                </div>
+                <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800">
+                   <p className="text-[10px] font-black text-gray-400 uppercase mb-1 text-center">Valor a ser Transmitido</p>
+                   <p className="text-2xl font-black text-gray-900 dark:text-white text-center">R$ {calculateTotal().toLocaleString('pt-BR')}</p>
+                </div>
+                <button onClick={handleSaveToProject} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                   <CheckCircle2 size={18} /> Confirmar Vínculo
+                </button>
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

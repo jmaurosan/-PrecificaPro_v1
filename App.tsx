@@ -14,10 +14,10 @@ import SettingsPage from './pages/Settings';
 import Projects from './pages/Projects';
 import ProjectFinances from './pages/ProjectFinances';
 import Financial from './pages/Financial';
+import ReceiptsPage from './pages/Receipts';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
@@ -25,26 +25,16 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
       </div>
     );
   }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
-  }
-  
+  if (!isAuthenticated) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 };
 
 const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  
   return (
     <Routes>
-      <Route 
-        path="/auth" 
-        element={isAuthenticated ? <Navigate to="/" replace /> : <Auth />} 
-      />
-      <Route
-        path="/*"
-        element={
+      <Route path="/auth" element={isAuthenticated ? <Navigate to="/" replace /> : <Auth />} />
+      <Route path="/*" element={
           <ProtectedRoute>
             <Layout>
               <Routes>
@@ -52,6 +42,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/projects/:id/finances" element={<ProjectFinances />} />
                 <Route path="/financial" element={<Financial />} />
+                <Route path="/receipts" element={<ReceiptsPage />} />
                 <Route path="/calculator" element={<CalculatorPage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/proposals" element={<ProposalsPage />} />

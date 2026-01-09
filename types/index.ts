@@ -38,42 +38,13 @@ export interface Endereco {
   lote?: string;
 }
 
-export interface Prestador {
-  id: string;
-  tipoCadastro: TipoPessoa;
-  nome: string;
-  razaoSocial?: string;
-  cpfCnpj: string;
-  ramoAtividade: string;
-  categoriaPrincipal: string;
-  subcategorias: string[];
-  atuaEmAutomacaoResidencial: boolean;
-  tiposSistemasAutomacao: string[];
-  marcasTrabalhadas: string[];
-  email: string;
-  telefoneCelular: string;
-  whatsapp?: string;
-  statusCadastro: 'em_analise' | 'aprovado' | 'bloqueado';
-  notaMedia?: number;
-}
-
-export interface ContaPagar {
-  id: string;
-  prestadorId: string;
-  prestadorNome: string;
-  projetoId?: string;
-  projetoNome?: string;
-  descricao: string;
-  valorTotal: number;
-  dataVencimento: string;
-  status: 'aberta' | 'parcialmente_paga' | 'paga' | 'cancelada';
-  categoria: 'mao_de_obra' | 'material' | 'automacao' | 'projeto';
-}
-
 export interface Client {
   id: string;
   tipo: TipoPessoa;
-  nome: string;
+  nome: string; // Razão Social para PJ
+  fantasia?: string; // Exclusivo PJ
+  inscricaoEstadual?: string; // Exclusivo PJ
+  nascimento?: string; // Exclusivo PF
   cpfCnpj: string;
   email: string;
   telefones: { celular: string; whatsapp: string; };
@@ -87,6 +58,11 @@ export interface Client {
   };
   status: StatusLead;
   createdAt: Date;
+  briefing?: {
+    objetivo: string;
+    estilo: string;
+    prazo: string;
+  };
 }
 
 export interface Project {
@@ -111,4 +87,36 @@ export interface ProjectExpense {
   date: string;
   type: 'expense' | 'return';
   receiptImage?: string;
+}
+
+// Interface para representar um prestador de serviços ou parceiro técnico
+export interface Prestador {
+  id: string;
+  nome: string;
+  tipoCadastro: TipoPessoa;
+  cpfCnpj: string;
+  ramoAtividade: string;
+  categoriaPrincipal: string;
+  subcategorias: string[];
+  atuaEmAutomacaoResidencial: boolean;
+  tiposSistemasAutomacao: string[];
+  marcasTrabalhadas: string[];
+  email: string;
+  telefoneCelular: string;
+  statusCadastro: 'aprovado' | 'em_analise' | 'reprovado';
+  notaMedia: number;
+}
+
+// Interface para representar uma conta a pagar no sistema financeiro
+export interface ContaPagar {
+  id: string;
+  prestadorId: string;
+  prestadorNome: string;
+  projetoId: string;
+  projetoNome: string;
+  descricao: string;
+  valorTotal: number;
+  dataVencimento: string;
+  status: 'aberta' | 'paga' | 'atrasada';
+  categoria: 'mao_de_obra' | 'material' | 'automacao' | 'projeto';
 }
